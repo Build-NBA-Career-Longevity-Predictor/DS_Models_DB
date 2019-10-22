@@ -54,7 +54,7 @@ def create_app():
         player = request.values['player_name']
 
         pg_cur.execute("""
-        SELECT player, position, height, weight, college, draft_yr, pick, fg_pct, fg3_pct, ft_pct, orb_pg, drb_pg, steals_pg, player_comp
+        SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp
         FROM player_stats
         WHERE player = %s;
         """, (player,))
