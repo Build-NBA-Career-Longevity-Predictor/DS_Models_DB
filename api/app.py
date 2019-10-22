@@ -1,9 +1,11 @@
 import psycopg2
 from flask import Flask, render_template
-#from decouple import config
+
 
 def create_app():
-
+    """
+    Main function to create application
+    """
     app = Flask(__name__)
     app.config["FLASK_ENV"] = "development"
 
@@ -22,12 +24,31 @@ def create_app():
         FROM player_stats
         LIMIT 1;
         """)
-        
+
         data = pg_cur.fetchall()
 
         pg_cur.close()
         pg_conn.close()
 
         return render_template("index.html", data=data)
+    
+    @app.route("/players")
+    def players():
+        """
+        Endpoint to get all players in database
+        """
+        pg_conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_password, host=db_host)
+        pg_cur = pg_conn.cursor()
 
+        pg_cur.execute("""
+        SELECT player
+        FROM player_stats;
+        """)
+
+        players = pg_cur.fetchall()
+
+        pg_cur.close()
+        pg_conn.close()
+
+        return render_template("players.html", players=players)
     return app
