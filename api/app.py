@@ -1,14 +1,33 @@
+import psycopg2
 from flask import Flask, render_template
-from flask_pymongo import PyMongo
-from decouple import config
+#from decouple import config
 
-app = Flask(__name__)
-app.config["FLASK_ENV"] = "development"
-app.config["MONGO_URI"] = config("MONGO_URI")
-mongo = PyMongo(app)
+def create_app():
 
-@app.route("/")
-def home_page():
-    nba_players = mongo.nba.players.find({}, {player: 1})
-    return render_template("index.html",
-        nba_players=nba_players)
+    app = Flask(__name__)
+    app.config["FLASK_ENV"] = "development"
+
+    db_host = 'ec2-54-235-180-123.compute-1.amazonaws.com'
+    db_name = 'd9j38jtaim5u92'
+    db_user = 'ticqhtmsxabnow'
+    db_password = 'a3be20dbc652d427ca174fc64781b6bd33cd6bce42e3158ac3b2a9e642f0f383'
+
+    @app.route("/")
+    def home_page():
+        pg_conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_password, host=db_host)
+        pg_cur = pg_conn.cursor()
+        
+        pg_cur.execute("""
+        SELECT *
+        FROM player_stats
+        LIMIT 1;
+        """)
+        
+        data = pg_cur.fetchall()
+
+        pg_cur.close()
+        pg_conn.close()
+
+        return render_template("index.html", data=data)
+
+    return app
