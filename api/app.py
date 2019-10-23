@@ -58,7 +58,11 @@ def create_app():
         pg_cur = pg_conn.cursor()
 
         player = request.values['player_name']
+<<<<<<< HEAD
         #logging.log(player)
+=======
+        #logging.log(player, msg)
+>>>>>>> ecd24f1a639a8474a08b045a2319f0fdf7fa1f91
         #player = request.json
         
 
