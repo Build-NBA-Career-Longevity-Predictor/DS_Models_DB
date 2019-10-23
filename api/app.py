@@ -56,7 +56,7 @@ def create_app():
         pg_cur = pg_conn.cursor()
 
         player = request.values['player_name']
-        logging.log(player)
+        #logging.log(player, msg)
         #player = request.json
         
 
