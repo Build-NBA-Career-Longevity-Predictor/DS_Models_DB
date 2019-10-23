@@ -50,8 +50,6 @@ def create_app():
         """
         metrics = ['img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, pred_yrs']
 
-        data = request.get_json(force=True)
-
         pg_conn = psycopg2.connect(
             dbname=db_name, user=db_user, password=db_password, host=db_host)
         pg_cur = pg_conn.cursor()
