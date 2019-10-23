@@ -1,0 +1,5 @@
+psycopg2-binary
+Flask
+python-decouple
+gunicorn
+python-dotenv
