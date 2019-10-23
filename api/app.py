@@ -1,4 +1,5 @@
 import psycopg2
+import logging
 from flask import Flask, render_template, request, jsonify
 from decouple import config
 
@@ -55,6 +56,10 @@ def create_app():
         pg_cur = pg_conn.cursor()
 
         player = request.values['player_name']
+        logging.log(player)
+        #player = request.json
+        
+
 
         pg_cur.execute("""
         SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, predictions
