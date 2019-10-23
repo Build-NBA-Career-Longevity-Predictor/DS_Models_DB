@@ -36,6 +36,7 @@ def create_app():
         """)
 
         players = pg_cur.fetchall()
+        players = [list(player) for player in players]
 
         pg_cur.close()
         pg_conn.close()
@@ -47,6 +48,8 @@ def create_app():
         """
         Endpoint for user to submit a specific player and receive some stats as well as their player comparison
         """
+        metrics = ['img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, pred_yrs']
+
         pg_conn = psycopg2.connect(
             dbname=db_name, user=db_user, password=db_password, host=db_host)
         pg_cur = pg_conn.cursor()
@@ -54,16 +57,30 @@ def create_app():
         player = request.values['player_name']
 
         pg_cur.execute("""
-        SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp
+        SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, predictions
         FROM player_stats
         WHERE player = %s;
         """, (player,))
 
         submission = pg_cur.fetchall()
+        submission = [list(elem) for elem in submission]
+
+        #submission_dict = dict(zip(metrics, submission))
+
+        comparison_player = submission[0][-2]
+
+        pg_cur.execute(""" 
+        SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg
+        FROM player_stats
+        WHERE player = %s;
+        """, (comparison_player,))
+
+        comparison = pg_cur.fetchall()
+        comparison = [list(elem) for elem in comparison]
 
         pg_cur.close()
         pg_conn.close()
 
-        return render_template("submit.html", submission=submission)
+        return render_template("submit.html", submission=submission, comparison=comparison)
 
     return app
