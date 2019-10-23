@@ -1,6 +1,7 @@
 import psycopg2
 import logging
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from decouple import config
 
 
@@ -9,6 +10,7 @@ def create_app():
     Main function to create application
     """
     app = Flask(__name__)
+    CORS(app)
 
     db_host = config('DB_HOST')
     db_name = config('DB_NAME')
@@ -56,7 +58,7 @@ def create_app():
         pg_cur = pg_conn.cursor()
 
         player = request.values['player_name']
-        logging.log(player)
+        #logging.log(player)
         #player = request.json
         
 
