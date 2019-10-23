@@ -6,10 +6,10 @@ A collective repo for the models and the database.
   - Done
   
 ### Similar Player Model
-  - In progress
+  - Done
   
 ### API
   - In progres
   
 ### Database
-  - In Progress
+  - Done
