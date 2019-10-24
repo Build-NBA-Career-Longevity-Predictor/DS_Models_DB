@@ -9,7 +9,7 @@ A collective repo for the models and the database.
   - Done
   
 ### API
-  - In progres
+  - Done
   
 ### Database
   - Done
