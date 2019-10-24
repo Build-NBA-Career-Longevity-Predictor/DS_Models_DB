@@ -22,15 +22,14 @@ def create_app():
         """
         Application home page
         """
-        return render_template("index.html")
+        return "Go to /players or /firstname_lastname (ex. /Larry_Bird)"
 
     @app.route("/players")
     def players():
         """
         Endpoint to get all players in database
         """
-        header('Content-type: application/json')
-        
+
         pg_conn = psycopg2.connect(
             dbname=db_name, user=db_user, password=db_password, host=db_host)
         pg_cur = pg_conn.cursor()
@@ -41,25 +40,26 @@ def create_app():
         """)
 
         players = pg_cur.fetchall()
-        players = [list(player) for player in players]
 
         pg_cur.close()
         pg_conn.close()
 
-        return render_template("players.html", players=players)
+        #return jsonify(render_template("players.html", players=players))
+        return jsonify(players)
 
-    @app.route("/submit", methods=['POST'])
-    def submit():
+    @app.route('/<name>', methods=['GET', 'POST'])
+    def request(name):
         """
         Endpoint for user to submit a specific player and receive some stats as well as their player comparison
         """
-        metrics = ['img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, pred_yrs']
+        #data = request.get_json()
+        player = name.replace('_', ' ')
 
         pg_conn = psycopg2.connect(
             dbname=db_name, user=db_user, password=db_password, host=db_host)
         pg_cur = pg_conn.cursor()
 
-        player = request.values['player_name']
+        # #player = request.values['player_name']
         
         pg_cur.execute("""
         SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, predictions
@@ -67,12 +67,11 @@ def create_app():
         WHERE player = %s;
         """, (player,))
 
-        submission = pg_cur.fetchall()
-        submission = [list(elem) for elem in submission]
+        submission = pg_cur.fetchall()[0]
+        comparison_player = submission[-2]
 
-        #submission_dict = dict(zip(metrics, submission))
-
-        comparison_player = submission[0][-2]
+        metrics = ['img', 'player', 'position', 'height', 'weight', 'college', 'draft_yr', 'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg', 'player_comp', 'pred_yrs']
+        submission_dict = dict(zip(metrics, submission))
 
         pg_cur.execute(""" 
         SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg
@@ -80,12 +79,13 @@ def create_app():
         WHERE player = %s;
         """, (comparison_player,))
 
-        comparison = pg_cur.fetchall()
-        comparison = [list(elem) for elem in comparison]
+        comp_metrics = ['img', 'player', 'position', 'height', 'weight', 'college', 'draft_yr', 'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg']
+        comparison = pg_cur.fetchall()[0]
+        comparison_dict = dict(zip(comp_metrics, comparison))
 
         pg_cur.close()
         pg_conn.close()
 
-        return render_template("submit.html", submission=submission, comparison=comparison)
+        return jsonify(submission_dict, comparison_dict)
 
     return app
