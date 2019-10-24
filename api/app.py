@@ -1,6 +1,6 @@
 import psycopg2
 import logging
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from decouple import config
 
@@ -44,7 +44,6 @@ def create_app():
         pg_cur.close()
         pg_conn.close()
 
-        #return jsonify(render_template("players.html", players=players))
         return jsonify(players)
 
     @app.route('/<name>', methods=['GET', 'POST'])
@@ -52,15 +51,13 @@ def create_app():
         """
         Endpoint for user to submit a specific player and receive some stats as well as their player comparison
         """
-        #data = request.get_json()
+
         player = name.replace('_', ' ')
 
         pg_conn = psycopg2.connect(
             dbname=db_name, user=db_user, password=db_password, host=db_host)
         pg_cur = pg_conn.cursor()
 
-        # #player = request.values['player_name']
-        
         pg_cur.execute("""
         SELECT img, player, position, height, weight, college, draft_yr, pick, drafted_by, min_pg, pts_pg, trb_pg, ast_pg, player_comp, predictions
         FROM player_stats
@@ -70,7 +67,8 @@ def create_app():
         submission = pg_cur.fetchall()[0]
         comparison_player = submission[-2]
 
-        metrics = ['img', 'player', 'position', 'height', 'weight', 'college', 'draft_yr', 'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg', 'player_comp', 'pred_yrs']
+        metrics = ['img', 'player', 'position', 'height', 'weight', 'college', 'draft_yr',
+                   'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg', 'player_comp', 'pred_yrs']
         submission_dict = dict(zip(metrics, submission))
 
         pg_cur.execute(""" 
@@ -79,7 +77,8 @@ def create_app():
         WHERE player = %s;
         """, (comparison_player,))
 
-        comp_metrics = ['img', 'player', 'position', 'height', 'weight', 'college', 'draft_yr', 'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg']
+        comp_metrics = ['img', 'player', 'position', 'height', 'weight', 'college',
+                        'draft_yr', 'pick', 'drafted_by', 'min_pg', 'pts_pg', 'trb_pg', 'ast_pg']
         comparison = pg_cur.fetchall()[0]
         comparison_dict = dict(zip(comp_metrics, comparison))
 
